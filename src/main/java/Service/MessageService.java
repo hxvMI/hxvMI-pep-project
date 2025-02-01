@@ -13,5 +13,7 @@ public interface MessageService {
     Message getMessage(int message_id);
 
     Message deleteMessage(int message_id);
+
+    Message updateMessage(int message_id, Message message);
     
 }

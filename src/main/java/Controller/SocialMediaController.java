@@ -1,5 +1,7 @@
 package Controller;
 
+import static org.mockito.ArgumentMatchers.contains;
+
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,22 +47,39 @@ public class SocialMediaController {
         app.get("messages", this::getAllMessages);
         app.get("messages/{message_id}", this::getMessage);
         app.delete("messages/{message_id}", this::deleteMessage);
+        app.patch("messages/{message_id}", this::updateMessage);
+
 
         return app;
     }
 
-    /**
-6: Our API should be able to delete a message identified by a message ID.
-As a User, I should be able to submit a DELETE request on the endpoint 
-DELETE localhost:8080/messages/{message_id}.
 
-The deletion of an existing message should remove an existing message from the database. 
-If the message existed, the response body should contain the now-deleted message. 
-The response status should be 200, which is the default.
-If the message did not exist, the response status should be 200, but the response 
-body should be empty. This is because the DELETE verb is intended to be idempotent, 
-ie, multiple calls to the DELETE endpoint should respond with the same type of response.
-     */
+     private void updateMessage(Context context) {
+        ObjectMapper objM = new ObjectMapper();
+        String jsonPathInfo = context.pathParam("message_id");
+        int message_id = Integer.parseInt(jsonPathInfo);
+        String jsonMessageInfo = context.body();
+
+
+        try{
+
+            Message message = objM.readValue(jsonMessageInfo, Message.class);
+            Message updatedMessage = messageService.updateMessage(message_id, message);
+
+            if (updatedMessage != null) {
+                context.status(200);  // OK
+                context.json(updatedMessage);
+            } 
+            else context.status(400);  // Return 400 client error but with an empty response
+            
+        }catch(Exception e){
+            System.out.println("Exception in SocailMediaController deleteMessage");
+            e.printStackTrace();
+            context.status(500);                //Server Error
+        }
+    }
+
+
     private void deleteMessage(Context context) {
         String jsonMessageInfo = context.pathParam("message_id");
         int message_id = Integer.parseInt(jsonMessageInfo);
@@ -84,8 +103,8 @@ ie, multiple calls to the DELETE endpoint should respond with the same type of r
 
 
      private void getMessage(Context context) {
-        String jsonMessageInfo = context.pathParam("message_id");
-        int message_id = Integer.parseInt(jsonMessageInfo);
+        String jsonPathInfo = context.pathParam("message_id");
+        int message_id = Integer.parseInt(jsonPathInfo);
 
         try{
             Message message = messageService.getMessage(message_id);

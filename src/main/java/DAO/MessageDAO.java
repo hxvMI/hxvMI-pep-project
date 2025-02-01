@@ -135,4 +135,24 @@ public class MessageDAO {
         return null;
     }
 
+    public Message updateMessage(int message_id, String message_text) {
+        String query = "UPDATE message SET message_text = ? WHERE message_id = ?";
+        
+        try{
+            PreparedStatement pStatement = conn.prepareStatement(query);
+            pStatement.setString(1, message_text);
+            pStatement.setInt(2, message_id);
+            int rowsAffected = pStatement.executeUpdate();
+
+            if(rowsAffected > 0) return getMessage(message_id); 
+        }
+        catch(SQLException e){
+            System.out.println("Error in AccountDAO getMessage");
+            e.printStackTrace(); // Log the error for debugging
+            return null;
+        }
+
+        return null;
+    }
+
 }
