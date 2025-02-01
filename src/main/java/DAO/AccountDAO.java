@@ -58,7 +58,7 @@ public class AccountDAO {
 
                 if(res.next()){
                     int id = res.getInt(1);
-                    return new Account(id, username,password);
+                    return new Account(id, username, password);
                 }
             }   
         }
@@ -68,6 +68,33 @@ public class AccountDAO {
             return null;
         }
         
+        return null;
+    }
+
+
+
+    public Account login(String username, String password) {
+        String sql = "SELECT * FROM account where username = ? AND password = ?";
+
+        try{
+            PreparedStatement pStatement = conn.prepareStatement(sql);
+            pStatement.setString(1, username);
+            pStatement.setString(2, password);
+
+            ResultSet res = pStatement.executeQuery();
+
+
+            if(res.next()){ //1st if START      //will be no .next() if nothing found
+                int id = res.getInt("account_id");
+                return new Account(id, username, password);
+            }//1st if END
+        }
+        catch(SQLException e){
+            System.out.println("Error in AccountDAO login");
+            e.printStackTrace(); // Log the error for debugging
+            return null;
+        }    
+    
         return null;
     }
 

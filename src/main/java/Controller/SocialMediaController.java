@@ -26,13 +26,35 @@ public class SocialMediaController {
         Javalin app = Javalin.create();
   
 //    The body will contain a representation of a JSON Account, but will not contain an account_id.
+//    this:: passses the Context obj
         app.post("register", this::createNewAccount);
-
+        app.post("login", this::login);
 
 
         return app;
     }
 
+    private void login(Context context){
+        String jsonAccountInfo = context.body();
+        ObjectMapper objM = new ObjectMapper();
+
+        try{
+            Account account = objM.readValue(jsonAccountInfo, Account.class);
+            Account loggedInAccount = accountService.login(account);
+
+            if(loggedInAccount != null){
+                context.status(200);     //OK
+                context.json(loggedInAccount);
+            }
+            else context.status(401);           //Client Error Unauthorized
+
+        }catch(Exception e){
+            System.out.println("Exception in SocailMediaController Login");
+            e.printStackTrace();
+            context.status(500);                //Server Error
+        }
+    }
+    
 
     private void createNewAccount(Context context){
         String jsonAccountInfo = context.body();
@@ -50,7 +72,7 @@ public class SocialMediaController {
             else context.status(400);           //Client Error
         }
         catch(Exception e){
-            System.out.println("Exception in SocailMediaController");
+            System.out.println("Exception in SocailMediaController createNewAccount");
             e.printStackTrace();
             context.status(500);                //Server Error
         }

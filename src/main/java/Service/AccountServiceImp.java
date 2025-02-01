@@ -20,5 +20,12 @@ public class AccountServiceImp implements AccountService{
 
         return accountDAO.createNewAccount(account.getUsername(), account.getPassword());
     }
+
+    @Override
+    public Account login(Account account) {
+        if(account.getUsername().isBlank() || account.getPassword().isBlank())return null;
+
+        return accountDAO.login(account.getUsername(), account.getPassword());
+    }
     
 }
