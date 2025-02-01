@@ -1,5 +1,7 @@
 package Controller;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import Model.Account;
@@ -30,14 +32,42 @@ public class SocialMediaController {
     public Javalin startAPI() {
         Javalin app = Javalin.create();
   
-//    The body will contain a representation of a JSON Account, but will not contain an account_id.
-//    this:: passses the Context obj
+    //The body will contain a representation of a JSON Account, but will not contain an account_id.
+    //this:: passses the Context obj
         app.post("register", this::createNewAccount);
         app.post("login", this::login);
 
         app.post("messages", this::createNewPost);
+        app.get("messages", this::getAllMessages);
 
         return app;
+    }
+
+    /**
+     * 4: Our API should be able to retrieve all messages.
+As a user, I should be able to submit a GET request on the 
+endpoint GET localhost:8080/messages.
+
+The response body should contain a JSON representation of 
+a list containing all messages retrieved from the database. 
+It is expected for the list to simply be empty if there are no messages. 
+The response status should always be 200, which is the default.
+     * @param context
+     */
+
+     private void getAllMessages(Context context) {
+
+        try{
+            List<Message> allMessages = messageService.getAllMessages();
+
+            context.status(200);     //OK
+            context.json(allMessages);
+
+        }catch(Exception e){
+            System.out.println("Exception in SocailMediaController getAllMessages");
+            e.printStackTrace();
+            context.status(500);                //Server Error
+        }
     }
 
     private void createNewPost(Context context) {
@@ -61,7 +91,7 @@ public class SocialMediaController {
     }
 
 
-    
+
     private void login(Context context){
         String jsonAccountInfo = context.body();
         ObjectMapper objM = new ObjectMapper();

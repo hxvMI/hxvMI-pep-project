@@ -6,6 +6,8 @@ import Util.ConnectionUtil;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.sql.Connection;
 import Util.ConnectionUtil;
 
@@ -42,8 +44,8 @@ public class MessageDAO {
                 ResultSet res = pStatement.getGeneratedKeys();
 
                 if(res.next()){
-                    int message_id = res.getInt("message_id");
-                    return new Message(message_id, posted_by, message_text, time_posted_epoch);
+                    int db_message_id = res.getInt(1);
+                    return new Message(db_message_id, posted_by, message_text, time_posted_epoch);
                 }
             }   
         }
@@ -54,6 +56,34 @@ public class MessageDAO {
         }
 
         return null;
+    }
+
+    public List<Message> getAllMessages() {
+        String query = "SELECT * FROM message";
+        List<Message> allMessages = new ArrayList<>();
+        
+        try{
+            PreparedStatement pStatement = conn.prepareStatement(query);
+            ResultSet res = pStatement.executeQuery();
+
+
+            while(res.next()){
+                int db_message_id = res.getInt("message_id");
+                int db_posted_by = res.getInt("posted_by");
+                String db_message_text = res.getString("message_text");
+                long db_time_posted_epoch = res.getLong("time_posted_epoch");
+
+                allMessages.add(new Message(db_message_id, db_posted_by, db_message_text, db_time_posted_epoch));
+                }
+        }
+        catch(SQLException e){
+            System.out.println("Error in AccountDAO createNewPost");
+            e.printStackTrace(); // Log the error for debugging
+            return new ArrayList<>();
+        }
+
+        return allMessages;
+
     }
 
 }
