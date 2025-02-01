@@ -29,9 +29,12 @@ public class MessageServiceImp implements MessageService {
 
     @Override
     public Message getMessage(int message_id) {
-        
         return messageDAO.getMessage(message_id);
+    }
 
+    @Override
+    public Message deleteMessage(int message_id) {
+        return messageDAO.deleteMessage(message_id);
     }
 
 }

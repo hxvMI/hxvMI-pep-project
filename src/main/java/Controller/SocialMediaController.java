@@ -15,6 +15,8 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 
 ////////////////////////////Move some of the stuff from controller into SERVICE classes if time
+////////////////////////////should be passing the context into the Service methods 
+////////////////////////////too late now tho do after
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller. The endpoints you will need can be
@@ -42,20 +44,43 @@ public class SocialMediaController {
         app.post("messages", this::createNewPost);
         app.get("messages", this::getAllMessages);
         app.get("messages/{message_id}", this::getMessage);
+        app.delete("messages/{message_id}", this::deleteMessage);
 
         return app;
     }
 
     /**
-5: Our API should be able to retrieve a message by its ID.
-As a user, I should be able to submit a GET request on the endpoint 
-GET localhost:8080/messages/{message_id}.
+6: Our API should be able to delete a message identified by a message ID.
+As a User, I should be able to submit a DELETE request on the endpoint 
+DELETE localhost:8080/messages/{message_id}.
 
-The response body should contain a JSON representation of the message 
-identified by the message_id. It is expected for the response body to 
-simply be empty if there is no such message. 
-The response status should always be 200, which is the default.
+The deletion of an existing message should remove an existing message from the database. 
+If the message existed, the response body should contain the now-deleted message. 
+The response status should be 200, which is the default.
+If the message did not exist, the response status should be 200, but the response 
+body should be empty. This is because the DELETE verb is intended to be idempotent, 
+ie, multiple calls to the DELETE endpoint should respond with the same type of response.
      */
+    private void deleteMessage(Context context) {
+        String jsonMessageInfo = context.pathParam("message_id");
+        int message_id = Integer.parseInt(jsonMessageInfo);
+
+        try{
+            Message message = messageService.deleteMessage(message_id);
+
+            if (message != null) {
+                context.status(200);  // OK
+                context.json(message);
+            } 
+            else context.status(200);  // Return 200 but with an empty response
+            
+
+        }catch(Exception e){
+            System.out.println("Exception in SocailMediaController deleteMessage");
+            e.printStackTrace();
+            context.status(500);                //Server Error
+        }
+    }
 
 
      private void getMessage(Context context) {
@@ -73,7 +98,7 @@ The response status should always be 200, which is the default.
             
 
         }catch(Exception e){
-            System.out.println("Exception in SocailMediaController getAllMessages");
+            System.out.println("Exception in SocailMediaController getMessage");
             e.printStackTrace();
             context.status(500);                //Server Error
         }

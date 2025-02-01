@@ -113,4 +113,26 @@ public class MessageDAO {
         return null;
     }
 
+    public Message deleteMessage(int message_id) {
+        Message res = getMessage(message_id);
+        if (res == null)return null;
+
+        String query = "DELETE FROM message WHERE message_id = ?";    
+
+        try{
+            PreparedStatement pStatement = conn.prepareStatement(query);
+            pStatement.setInt(1, message_id);
+            int rowsAffected = pStatement.executeUpdate();
+
+            if(rowsAffected > 0) return res;
+        }
+        catch(SQLException e){
+            System.out.println("Error in AccountDAO getMessage");
+            e.printStackTrace(); // Log the error for debugging
+            return null;
+        }
+
+        return null;
+    }
+
 }

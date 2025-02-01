@@ -11,5 +11,7 @@ public interface MessageService {
     List<Message> getAllMessages();
 
     Message getMessage(int message_id);
+
+    Message deleteMessage(int message_id);
     
 }
