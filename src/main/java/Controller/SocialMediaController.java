@@ -55,23 +55,27 @@ public class SocialMediaController {
         return app;
     }
 
+    private void sendResponse(Context context, int status, Object responseBody){
+        context.status(status);
+        if(responseBody != null) context.json(responseBody);
+    }
+
+    private void handleError(Context context, Exception e) {
+        e.printStackTrace();
+        sendResponse(context, 500, "Internal server error"); // 500 Server Error
+    }
 
 
-     private void getAllMessagesByUser(Context context) {
+    private void getAllMessagesByUser(Context context) {
         String jsonPathInfo = context.pathParam("account_id");
         int account_id = Integer.parseInt(jsonPathInfo);
 
         try{
             List<Message> allMessagesByUser = messageService.getAllMessagesByUser(account_id);
-
-            context.status(200);     //OK
-            context.json(allMessagesByUser);
-            
+            sendResponse(context, 200, allMessagesByUser);
 
         }catch(Exception e){
-            System.out.println("Exception in SocailMediaController getMessage");
-            e.printStackTrace();
-            context.status(500);                //Server Error
+            handleError(context, e);
         }
     }
 
@@ -95,9 +99,7 @@ public class SocialMediaController {
             else context.status(400);  // Return 400 client error but with an empty response
             
         }catch(Exception e){
-            System.out.println("Exception in SocailMediaController deleteMessage");
-            e.printStackTrace();
-            context.status(500);                //Server Error
+            handleError(context, e);
         }
     }
 
@@ -108,18 +110,9 @@ public class SocialMediaController {
 
         try{
             Message message = messageService.deleteMessage(message_id);
-
-            if (message != null) {
-                context.status(200);  // OK
-                context.json(message);
-            } 
-            else context.status(200);  // Return 200 but with an empty response
-            
-
+            sendResponse(context, 200, message);
         }catch(Exception e){
-            System.out.println("Exception in SocailMediaController deleteMessage");
-            e.printStackTrace();
-            context.status(500);                //Server Error
+            handleError(context, e);
         }
     }
 
@@ -130,18 +123,9 @@ public class SocialMediaController {
 
         try{
             Message message = messageService.getMessage(message_id);
-
-            if (message != null) {
-                context.status(200);  // OK
-                context.json(message);
-            } 
-            else context.status(200);  // Return 200 but with an empty response
-            
-
+            sendResponse(context, 200, message);
         }catch(Exception e){
-            System.out.println("Exception in SocailMediaController getMessage");
-            e.printStackTrace();
-            context.status(500);                //Server Error
+            handleError(context, e);
         }
     }
      
@@ -150,14 +134,9 @@ public class SocialMediaController {
 
         try{
             List<Message> allMessages = messageService.getAllMessages();
-
-            context.status(200);     //OK
-            context.json(allMessages);
-
+            sendResponse(context, 200, allMessages);
         }catch(Exception e){
-            System.out.println("Exception in SocailMediaController getAllMessages");
-            e.printStackTrace();
-            context.status(500);                //Server Error
+            handleError(context, e);
         }
     }
 
@@ -165,20 +144,18 @@ public class SocialMediaController {
     private void createNewPost(Context context) {
         String jsonMessageInfo = context.body();
         ObjectMapper objM = new ObjectMapper();
+        int status;
 
         try{
             Message message = objM.readValue(jsonMessageInfo, Message.class);
             Message createdMessage = messageService.createNewPost(message);
 
-            if(createdMessage != null){
-                context.status(200);     //OK
-                context.json(createdMessage);
-            }
-            else context.status(400); 
+            if(createdMessage != null) status = 200;     //OK 
+            else status = 400;  //Client Error Unauthorized
+
+            sendResponse(context, status, createdMessage);
         }catch(Exception e){
-            System.out.println("Exception in SocailMediaController createNewPost");
-            e.printStackTrace();
-            context.status(500);                //Server Error
+            handleError(context, e);
         }
     }
 
@@ -186,21 +163,18 @@ public class SocialMediaController {
     private void login(Context context){
         String jsonAccountInfo = context.body();
         ObjectMapper objM = new ObjectMapper();
+        int status;
 
         try{
             Account account = objM.readValue(jsonAccountInfo, Account.class);
             Account loggedInAccount = accountService.login(account);
 
-            if(loggedInAccount != null){
-                context.status(200);     //OK
-                context.json(loggedInAccount);
-            }
-            else context.status(401);           //Client Error Unauthorized
+            if(loggedInAccount != null) status = 200;     //OK 
+            else status = 401;  //Client Error Unauthorized
 
+            sendResponse(context, status, loggedInAccount);
         }catch(Exception e){
-            System.out.println("Exception in SocailMediaController Login");
-            e.printStackTrace();
-            context.status(500);                //Server Error
+            handleError(context, e);
         }
     }
     
@@ -208,22 +182,19 @@ public class SocialMediaController {
     private void createNewAccount(Context context){
         String jsonAccountInfo = context.body();
         ObjectMapper objM = new ObjectMapper();        // V V V Convert jsonAccountInfo String into Account OBJ
-        
+        int status;
         
         try{
             Account account = objM.readValue(jsonAccountInfo, Account.class); 
             Account createdAccount = accountService.createNewAccount(account);             //Call createNewAccount service method
-            
-            if(createdAccount != null){
-                context.status(200);     //OK
-                context.json(createdAccount);
-            }
-            else context.status(400);           //Client Error
+ 
+            if(createdAccount != null) status = 200;     
+            else status = 400; 
+
+            sendResponse(context, status, createdAccount);
         }
         catch(Exception e){
-            System.out.println("Exception in SocailMediaController createNewAccount");
-            e.printStackTrace();
-            context.status(500);                //Server Error
+            handleError(context, e);
         }
     }
 

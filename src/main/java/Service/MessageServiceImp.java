@@ -48,16 +48,6 @@ public class MessageServiceImp implements MessageService {
     }
 
 
-            /**
-8: Our API should be able to retrieve all messages written by a particular user.
-As a user, I should be able to submit a GET request on the endpoint 
-GET localhost:8080/accounts/{account_id}/messages.
-
-The response body should contain a JSON representation of a list containing 
-all messages posted by a particular user, which is retrieved from the database.
- It is expected for the list to simply be empty if there are no messages. 
-The response status should always be 200, which is the default.
-     */
     @Override
     public List<Message> getAllMessagesByUser(int account_id) {
         if(accountDAO.accountExistsById(account_id) == false)return new ArrayList<>();
