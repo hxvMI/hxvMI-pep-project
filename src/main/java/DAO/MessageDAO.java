@@ -77,13 +77,40 @@ public class MessageDAO {
                 }
         }
         catch(SQLException e){
-            System.out.println("Error in AccountDAO createNewPost");
+            System.out.println("Error in AccountDAO getAllMessages");
             e.printStackTrace(); // Log the error for debugging
             return new ArrayList<>();
         }
 
         return allMessages;
 
+    }
+
+    public Message getMessage(int message_id) {
+        String query = "SELECT * FROM message WHERE message_id = ?";
+        
+        try{
+            PreparedStatement pStatement = conn.prepareStatement(query);
+            pStatement.setInt(1, message_id);
+
+            ResultSet res = pStatement.executeQuery();
+
+            if(res.next()){
+                int db_message_id = res.getInt("message_id");
+                int db_posted_by = res.getInt("posted_by");
+                String db_message_text = res.getString("message_text");
+                long db_time_posted_epoch = res.getLong("time_posted_epoch");
+
+                return new Message(db_message_id, db_posted_by, db_message_text, db_time_posted_epoch);
+            }
+        }
+        catch(SQLException e){
+            System.out.println("Error in AccountDAO getMessage");
+            e.printStackTrace(); // Log the error for debugging
+            return null;
+        }
+
+        return null;
     }
 
 }
