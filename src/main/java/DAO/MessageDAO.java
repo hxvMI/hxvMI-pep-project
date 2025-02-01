@@ -147,12 +147,40 @@ public class MessageDAO {
             if(rowsAffected > 0) return getMessage(message_id); 
         }
         catch(SQLException e){
-            System.out.println("Error in AccountDAO getMessage");
+            System.out.println("Error in AccountDAO updateMessage");
             e.printStackTrace(); // Log the error for debugging
             return null;
         }
 
         return null;
+    }
+
+    public List<Message> getAllMessagesByUser(int account_id) {
+        List<Message> allMessagesByUser = new ArrayList<>();
+        String query = "SELECT * FROM message WHERE posted_by = ?";
+
+        try{
+
+            PreparedStatement pStatement = conn.prepareStatement(query);
+            pStatement.setInt(1, account_id);
+            
+            ResultSet res = pStatement.executeQuery();
+            while(res.next()){
+                int db_message_id = res.getInt("message_id");
+                int db_posted_by = res.getInt("posted_by");
+                String db_message_text = res.getString("message_text");
+                long db_time_posted_epoch = res.getLong("time_posted_epoch");
+
+                allMessagesByUser.add(new Message(db_message_id, db_posted_by, db_message_text, db_time_posted_epoch));
+            }
+
+        }catch(SQLException e){
+            System.out.println("Error in AccountDAO getAllMessagesByUser");
+            e.printStackTrace(); // Log the error for debugging
+            return new ArrayList<>();
+        }
+
+        return allMessagesByUser;
     }
 
 }

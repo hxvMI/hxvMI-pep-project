@@ -48,9 +48,31 @@ public class SocialMediaController {
         app.get("messages/{message_id}", this::getMessage);
         app.delete("messages/{message_id}", this::deleteMessage);
         app.patch("messages/{message_id}", this::updateMessage);
+        app.get("accounts/{account_id}/messages", this::getAllMessagesByUser);
+
 
 
         return app;
+    }
+
+
+
+     private void getAllMessagesByUser(Context context) {
+        String jsonPathInfo = context.pathParam("account_id");
+        int account_id = Integer.parseInt(jsonPathInfo);
+
+        try{
+            List<Message> allMessagesByUser = messageService.getAllMessagesByUser(account_id);
+
+            context.status(200);     //OK
+            context.json(allMessagesByUser);
+            
+
+        }catch(Exception e){
+            System.out.println("Exception in SocailMediaController getMessage");
+            e.printStackTrace();
+            context.status(500);                //Server Error
+        }
     }
 
 

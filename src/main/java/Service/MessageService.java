@@ -15,5 +15,7 @@ public interface MessageService {
     Message deleteMessage(int message_id);
 
     Message updateMessage(int message_id, Message message);
+
+    List<Message> getAllMessagesByUser(int account_id);
     
 }
