@@ -16,9 +16,9 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 
-////////////////////////////Move some of the stuff from controller into SERVICE classes if time
-////////////////////////////should be passing the context into the Service methods 
-////////////////////////////too late now tho do after
+////////////////////////////Clean up further later by
+////////////////////////////Passing context into the Service methods and doing data extraction there 
+////////////////////////////too late rn do over the weekend
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller. The endpoints you will need can be
@@ -38,11 +38,10 @@ public class SocialMediaController {
     public Javalin startAPI() {
         Javalin app = Javalin.create();
   
-    //The body will contain a representation of a JSON Account, but will not contain an account_id.
-    //this:: passses the Context obj
+        //The body will contain a representation of a JSON Account, but will not contain an account_id.
+        //this:: passses the Context obj
         app.post("register", this::createNewAccount);
         app.post("login", this::login);
-
         app.post("messages", this::createNewPost);
         app.get("messages", this::getAllMessages);
         app.get("messages/{message_id}", this::getMessage);
@@ -50,15 +49,15 @@ public class SocialMediaController {
         app.patch("messages/{message_id}", this::updateMessage);
         app.get("accounts/{account_id}/messages", this::getAllMessagesByUser);
 
-
-
         return app;
     }
+
 
     private void sendResponse(Context context, int status, Object responseBody){
         context.status(status);
         if(responseBody != null) context.json(responseBody);
     }
+
 
     private void handleError(Context context, Exception e) {
         e.printStackTrace();
@@ -73,7 +72,6 @@ public class SocialMediaController {
         try{
             List<Message> allMessagesByUser = messageService.getAllMessagesByUser(account_id);
             sendResponse(context, 200, allMessagesByUser);
-
         }catch(Exception e){
             handleError(context, e);
         }
@@ -86,9 +84,7 @@ public class SocialMediaController {
         int message_id = Integer.parseInt(jsonPathInfo);
         String jsonMessageInfo = context.body();
 
-
         try{
-
             Message message = objM.readValue(jsonMessageInfo, Message.class);
             Message updatedMessage = messageService.updateMessage(message_id, message);
 
@@ -197,12 +193,6 @@ public class SocialMediaController {
             handleError(context, e);
         }
     }
-
-
-
-
-
-
 }
 
 
