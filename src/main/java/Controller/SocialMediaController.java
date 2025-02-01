@@ -3,10 +3,14 @@ package Controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import Model.Account;
+import Model.Message;
 import Service.AccountService;
 import Service.AccountServiceImp;
+import Service.MessageService;
+import Service.MessageServiceImp;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.Handler;
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller. The endpoints you will need can be
@@ -16,6 +20,7 @@ import io.javalin.http.Context;
 public class SocialMediaController {
 
     AccountService accountService = new AccountServiceImp();
+    MessageService messageService = new MessageServiceImp();
 
     /**
      * In order for the test cases to work, you will need to write the endpoints in the startAPI() method, as the test
@@ -30,10 +35,33 @@ public class SocialMediaController {
         app.post("register", this::createNewAccount);
         app.post("login", this::login);
 
+        app.post("messages", this::createNewPost);
 
         return app;
     }
 
+    private void createNewPost(Context context) {
+        String jsonMessageInfo = context.body();
+        ObjectMapper objM = new ObjectMapper();
+
+        try{
+            Message message = objM.readValue(jsonMessageInfo, Message.class);
+            Message createdMessage = messageService.createNewPost(message);
+
+            if(createdMessage != null){
+                context.status(200);     //OK
+                context.json(createdMessage);
+            }
+            else context.status(400); 
+        }catch(Exception e){
+            System.out.println("Exception in SocailMediaController createNewPost");
+            e.printStackTrace();
+            context.status(500);                //Server Error
+        }
+    }
+
+
+    
     private void login(Context context){
         String jsonAccountInfo = context.body();
         ObjectMapper objM = new ObjectMapper();

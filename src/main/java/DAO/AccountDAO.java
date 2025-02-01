@@ -3,7 +3,6 @@ package DAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 
 import Model.Account;
@@ -13,7 +12,7 @@ public class AccountDAO {
 
     Connection conn = ConnectionUtil.getConnection();
 
-    public boolean isUsernameAvailable(String username){
+    public boolean isUsernameAvailable(String username){ //remake later maybe
         String query = "SELECT COUNT(username) AS count FROM account WHERE username = ?;";
 
         try{
@@ -96,6 +95,28 @@ public class AccountDAO {
         }    
     
         return null;
+    }
+
+
+    //message_id is the same as account_id
+    public boolean accountExistsById(int account_id) {
+        String query = "SELECT * FROM account WHERE account_id = ?;";
+
+        try{
+            PreparedStatement pStatement = conn.prepareStatement(query);
+            pStatement.setInt(1, account_id);
+
+
+            ResultSet res = pStatement.executeQuery();
+            if (res.next()) return true;    //if there is a next row means an account with that id exists so true
+        }
+        catch(SQLException e){
+            System.out.println("Error in AccountDAO hasDupUsername");
+            e.printStackTrace(); // Log the error for debugging
+            return false;
+        }    
+
+        return false;
     }
 
 
